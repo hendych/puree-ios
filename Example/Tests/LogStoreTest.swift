@@ -1,30 +1,32 @@
 import XCTest
+import KurioPuree
 
-class PURLogStoreTest: XCTestCase {
-    class TestOutputA: PUROutput {}
-    class TestOutputB: PUROutput {}
+
+class LogStoreTest: XCTestCase {
+    class TestOutputA: Output {}
+    class TestOutputB: Output {}
 
     static let logStoreDBPath = NSTemporaryDirectory() + "/PureeLogStoreTest.db"
-    var logStore: PURLogStore!
+    var logStore: LogStore!
     var outputA: TestOutputA!
     var outputB: TestOutputB!
-    var outputC: PUROutput!
+    var outputC: Output!
 
     override func setUp() {
-        let dummyLogger = PURLogger(configuration: PURLoggerConfiguration())
+        let dummyLogger = Logger(configuration: LoggerConfiguration())
         outputA = TestOutputA(logger: dummyLogger, tagPattern: "test.*")
         outputB = TestOutputB(logger: dummyLogger, tagPattern: "test.*")
-        outputC = PUROutput(logger: dummyLogger, tagPattern: "testC.*")
+        outputC = Output(logger: dummyLogger, tagPattern: "testC.*")
 
-        logStore = PURLogStore(databasePath: PURLogStoreTest.logStoreDBPath)
-        logStore.prepare()
+        logStore = LogStore(databasePath: URL(fileURLWithPath: LogStoreTest.logStoreDBPath))
+        let _ = logStore.prepare()
     }
 
     override func tearDown() {
         logStore.clearAll()
     }
 
-    func assertLogCount(of output: PUROutput, expectedCount: Int, line: Int = #line) {
+    func assertLogCount(of output: Output, expectedCount: Int, line: Int = #line) {
         let countExpectation = expectation(description: "log count")
         var count = -1
         logStore.retrieveLogs(for: output) { logs in
@@ -35,12 +37,14 @@ class PURLogStoreTest: XCTestCase {
         XCTAssertEqual(count, expectedCount, "line: \(line)")
     }
 
-    func addTestLog(_ log: PURLog, output: PUROutput, description: String) {
+    func addTestLog(_ log: Log, output: Output, description: String) {
         let addExpectation = expectation(description: description)
-        logStore.add(log, for: output) { addExpectation.fulfill() }
+        logStore.add(log, for: output) {
+            addExpectation.fulfill()
+        }
     }
 
-    func addTestLogs(_ logs: [PURLog], output: PUROutput, description: String) {
+    func addTestLogs(_ logs: [Log], output: Output, description: String) {
         let addExpectation = expectation(description: description)
         logStore.add(logs, for: output) { addExpectation.fulfill() }
     }
@@ -49,11 +53,11 @@ class PURLogStoreTest: XCTestCase {
         assertLogCount(of: outputA, expectedCount: 0)
         assertLogCount(of: outputB, expectedCount: 0)
 
-        addTestLog(PURLog(tag: "test.apple", date: Date(), userInfo: [:]), output: outputA, description: "add test log 1")
-        addTestLog(PURLog(tag: "test.apple", date: Date(), userInfo: [:]), output: outputA, description: "add test log 2")
-        addTestLog(PURLog(tag: "test.banana", date: Date(), userInfo: [:]), output: outputA, description: "add test log 3")
-        addTestLog(PURLog(tag: "test.banana", date: Date(), userInfo: [:]), output: outputA, description: "add test log 4")
-        addTestLog(PURLog(tag: "test.apple", date: Date(), userInfo: [:]), output: outputB, description: "add test log 5")
+        addTestLog(Log(tag: "test.apple", date: Date(), userInfo: [:]), output: outputA, description: "add test log 1")
+        addTestLog(Log(tag: "test.apple", date: Date(), userInfo: [:]), output: outputA, description: "add test log 2")
+        addTestLog(Log(tag: "test.banana", date: Date(), userInfo: [:]), output: outputA, description: "add test log 3")
+        addTestLog(Log(tag: "test.banana", date: Date(), userInfo: [:]), output: outputA, description: "add test log 4")
+        addTestLog(Log(tag: "test.apple", date: Date(), userInfo: [:]), output: outputB, description: "add test log 5")
 
         waitForExpectations(timeout: 1.0, handler: nil)
 
@@ -66,16 +70,16 @@ class PURLogStoreTest: XCTestCase {
         assertLogCount(of: outputB, expectedCount: 0)
 
         addTestLogs([
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.banana", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.banana", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.banana", date: Date(), userInfo: [:]),
+            Log(tag: "test.banana", date: Date(), userInfo: [:]),
         ], output: outputA, description: "add test logs 1")
 
         addTestLogs([
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.banana", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.banana", date: Date(), userInfo: [:]),
         ], output: outputB, description: "add test logs 1")
 
         waitForExpectations(timeout: 1.0, handler: nil)
@@ -86,21 +90,21 @@ class PURLogStoreTest: XCTestCase {
 
     func testRemoveLogs() {
         let firstChunk = [
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.banana", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.banana", date: Date(), userInfo: [:]),
         ]
 
         addTestLogs(firstChunk, output: outputA, description: "add test logs 1")
 
         addTestLogs([
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.banana", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.banana", date: Date(), userInfo: [:]),
         ], output: outputA, description: "add test logs 2")
 
         addTestLogs([
-            PURLog(tag: "test.apple", date: Date(), userInfo: [:]),
-            PURLog(tag: "test.banana", date: Date(), userInfo: [:]),
+            Log(tag: "test.apple", date: Date(), userInfo: [:]),
+            Log(tag: "test.banana", date: Date(), userInfo: [:]),
         ], output: outputB, description: "add test logs 3")
 
         waitForExpectations(timeout: 1.0, handler: nil)
@@ -125,28 +129,28 @@ class PURLogStoreTest: XCTestCase {
         // write (3 + 3 + 4) * 100 logs (1000 logs)
         for i in 1...100 {
             addTestLogs([
-                PURLog(tag: "testA.apple", date: Date(), userInfo: [:]),
-                PURLog(tag: "testA.banana", date: Date(), userInfo: [:]),
-                PURLog(tag: "testA.mango", date: Date(), userInfo: [:]),
+                Log(tag: "testA.apple", date: Date(), userInfo: [:]),
+                Log(tag: "testA.banana", date: Date(), userInfo: [:]),
+                Log(tag: "testA.mango", date: Date(), userInfo: [:]),
             ], output: outputA, description: "\(i)-A")
 
             addTestLogs([
-                PURLog(tag: "testB.apple", date: Date(), userInfo: [:]),
-                PURLog(tag: "testB.banana", date: Date(), userInfo: [:]),
-                PURLog(tag: "testB.mango", date: Date(), userInfo: [:]),
+                Log(tag: "testB.apple", date: Date(), userInfo: [:]),
+                Log(tag: "testB.banana", date: Date(), userInfo: [:]),
+                Log(tag: "testB.mango", date: Date(), userInfo: [:]),
             ], output: outputB, description: "\(i)-B")
 
             addTestLogs([
-                PURLog(tag: "testC.apple", date: Date(), userInfo: [:]),
-                PURLog(tag: "testC.banana", date: Date(), userInfo: [:]),
-                PURLog(tag: "testC.mango", date: Date(), userInfo: [:]),
-                PURLog(tag: "testC.peach", date: Date(), userInfo: [:]),
+                Log(tag: "testC.apple", date: Date(), userInfo: [:]),
+                Log(tag: "testC.banana", date: Date(), userInfo: [:]),
+                Log(tag: "testC.mango", date: Date(), userInfo: [:]),
+                Log(tag: "testC.peach", date: Date(), userInfo: [:]),
             ], output: outputC, description: "\(i)-C")
         }
 
         // write 1 * 1000 logs (1000 logs)
         for i in 1...1000 {
-            addTestLog(PURLog(tag: "testC.peach", date: Date(), userInfo: [:]), output: outputC, description: "\(i)")
+            addTestLog(Log(tag: "testC.peach", date: Date(), userInfo: [:]), output: outputC, description: "\(i)")
         }
         waitForExpectations(timeout: 15.0, handler: nil)
 

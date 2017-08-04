@@ -9,23 +9,20 @@
 import Foundation
 
 open class Output {
-    private(set) var identifier: String = ""
-    private(set) var tagPattern: String = ""
-    private(set) var logger: Logger?
-    private(set) var logStore: LogStore?
+    public let identifier: String
+    public let tagPattern: String
+    public let logger: Logger
     
-    public init(logger: Logger, tagPattern: String) {
+    var logStore: LogStore {
+        get {
+            return self.logger.logStore()
+        }
+    }
+    
+    required public init(logger: Logger, tagPattern: String) {
         self.identifier = UUID().uuidString
         self.tagPattern = tagPattern
         self.logger = logger
-    }
-    
-    open func getLogStore() -> LogStore? {
-        if let logStore = logStore {
-            return logStore
-        }
-        
-        return nil
     }
     
     open func configure(_ settings: [String: Any]) {

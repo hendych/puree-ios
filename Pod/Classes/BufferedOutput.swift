@@ -1,24 +1,7 @@
 import Foundation
 
-private enum Constants {
-    static let BufferedOutputSettingsLogLimitKey: String = "BufferedOutputLogLimit"
-    static let BufferedOutputSettingsFlushIntervalKey: String = "BufferedOutputFlushInterval"
-    static let BufferedOutputSettingsMaxRetryCountKey: String = "BufferedOutputMaxRetryCount"
-    
-    static let BufferedOutputDidStartNotification = NSNotification.Name("BufferedOutputDidStartNotification")
-    static let BufferedOutputDidResumeNotification = NSNotification.Name("BufferedOutputDidResumeNotification")
-    static let BufferedOutputDidFlushNotification = NSNotification.Name("BufferedOutputDidFlushNotification")
-    static let BufferedOutputDidTryWriteChunkNotification = NSNotification.Name("BufferedOutputDidTryWriteChunkNotification")
-    static let BufferedOutputDidSuccessWriteChunkNotification = NSNotification.Name("BufferedOutputDidSuccessWriteChunkNotification")
-    static let BufferedOutputDidRetryWriteChunkNotification = NSNotification.Name("BufferedOutputDidRetryWriteChunkNotification")
-    
-    static let BufferedOutputDefaultLogLimit: Int = 5
-    static let BufferedOutputDefaultFlushInterval: TimeInterval = 10
-    static let BufferedOutputDefaultMaxRetryCount: Int = 3
-}
-
 public class BufferedOutputChunk {
-    private(set) var logs = [Log]()
+    private(set) public var logs = [Log]()
     var retryCount: Int = 0
     
     init(logs: [Log]) {
@@ -27,6 +10,22 @@ public class BufferedOutputChunk {
 }
 
 open class BufferedOutput: Output {
+    public static let SettingsLogLimitKey: String = "BufferedOutputLogLimit"
+    public static let SettingsFlushIntervalKey: String = "BufferedOutputFlushInterval"
+    public static let SettingsMaxRetryCountKey: String = "BufferedOutputMaxRetryCount"
+    
+    public static let DidStartNotification = NSNotification.Name("BufferedOutputDidStartNotification")
+    public static let DidResumeNotification = NSNotification.Name("BufferedOutputDidResumeNotification")
+    public static let DidFlushNotification = NSNotification.Name("BufferedOutputDidFlushNotification")
+    public static let DidTryWriteChunkNotification = NSNotification.Name("BufferedOutputDidTryWriteChunkNotification")
+    public static let DidSuccessWriteChunkNotification = NSNotification.Name("BufferedOutputDidSuccessWriteChunkNotification")
+    public static let DidRetryWriteChunkNotification = NSNotification.Name("BufferedOutputDidRetryWriteChunkNotification")
+    
+    public static let DefaultLogLimit: Int = 5
+    public static let DefaultFlushInterval: Int = 10
+    public static let DefaultMaxRetryCount: Int = 3
+    
+    
     private(set) var buffer = [Log]()
     private(set) var logLimit: Int = 0
     private(set) var flushInterval = TimeInterval()
@@ -48,35 +47,24 @@ open class BufferedOutput: Output {
         super.configure(settings)
         var value: Any?
         
-        value = settings[Constants.BufferedOutputSettingsLogLimitKey]
-        if let value = value as? Bool {
-            logLimit = value ? 1 : Constants.BufferedOutputDefaultLogLimit
-        }
+        value = settings[BufferedOutput.SettingsLogLimitKey]
+        logLimit = value as? Int ?? BufferedOutput.DefaultLogLimit
         
-        value = settings[Constants.BufferedOutputSettingsFlushIntervalKey]
-        if let value = value as? Bool {
-            flushInterval = value ? 1 : Constants.BufferedOutputDefaultFlushInterval
-        }
+        value = settings[BufferedOutput.SettingsFlushIntervalKey]
+        flushInterval = TimeInterval(value as? Int ?? BufferedOutput.DefaultFlushInterval)
         
-        value = settings[Constants.BufferedOutputSettingsFlushIntervalKey]
-        if let value = value as? Bool {
-            flushInterval = value ? 1 : Constants.BufferedOutputDefaultFlushInterval
-        }
-        
-        value = settings[Constants.BufferedOutputSettingsMaxRetryCountKey]
-        if let value = value as? Bool {
-            maxRetryCount = value ? 1 : Constants.BufferedOutputDefaultMaxRetryCount
-        }
+        value = settings[BufferedOutput.SettingsMaxRetryCountKey]
+        maxRetryCount = value as? Int ?? BufferedOutput.DefaultMaxRetryCount
         
         buffer = [Log]()
     }
     
     open override func start() {
         super.start()
-        buffer.removeAll()
         
+        buffer.removeAll()
         retrieveLogs({(_ logs: [Log]) -> Void in
-            NotificationCenter.default.post(name: Constants.BufferedOutputDidStartNotification, object: self)
+            NotificationCenter.default.post(name: BufferedOutput.DidStartNotification, object: self)
             
             if let timer = self.timer, timer.isValid == false {
                 return
@@ -91,10 +79,10 @@ open class BufferedOutput: Output {
     
     open override func resume() {
         super.resume()
-        buffer.removeAll()
         
+        buffer.removeAll()
         retrieveLogs({(_ logs: [Log]) -> Void in
-            NotificationCenter.default.post(name: Constants.BufferedOutputDidResumeNotification, object: self)
+            NotificationCenter.default.post(name: BufferedOutput.DidResumeNotification, object: self)
             
             if let timer = self.timer, timer.isValid == false {
                 return
@@ -108,9 +96,7 @@ open class BufferedOutput: Output {
     }
     
     open override func suspend() {
-        if let timer = timer {
-            timer.invalidate()
-        }
+        timer?.invalidate()
         
         super.suspend()
     }
@@ -123,12 +109,13 @@ open class BufferedOutput: Output {
     
     func retrieveLogs(_ completion: @escaping LogStoreRetrieveCompletionBlock) {
         buffer.removeAll()
-        logStore?.retrieveLogs(for: self, completion: completion)
+        logStore
+        logStore.retrieveLogs(for: self, completion: completion)
     }
     
     override open func emitLog(_ log: Log) {
         buffer.append(log)
-        logStore?.add(log, for: self, completion: {() -> Void in
+        logStore.add(log, for: self, completion: {() -> Void in
             if self.buffer.count >= self.logLimit {
                 self.flush()
             }
@@ -142,25 +129,26 @@ open class BufferedOutput: Output {
             return
         }
         
-        let logCount: Int = min(buffer.count, logLimit)
+        let logCount = min(buffer.count, logLimit) - 1
         
-        let flushLogs = Array(buffer[0...logCount])
+        var flushLogs = [Log]()
+        flushLogs.append(contentsOf: buffer[0...logCount])
+        buffer.removeSubrange(0...logCount)
+        
         let chunk = BufferedOutputChunk(logs: flushLogs)
         self.callWrite(chunk)
         
-        buffer.removeSubrange(0...logCount)
-        
-        NotificationCenter.default.post(name: Constants.BufferedOutputDidFlushNotification, object: self)
+        NotificationCenter.default.post(name: BufferedOutput.DidFlushNotification, object: self)
     }
     
     func callWrite(_ chunk: BufferedOutputChunk) {
         self.write(chunk) { (success) in
-            NotificationCenter.default.post(name: Constants.BufferedOutputDidTryWriteChunkNotification, object: self)
+            NotificationCenter.default.post(name: BufferedOutput.DidTryWriteChunkNotification, object: self)
             
             if success {
-                logStore?.removeLogs(chunk.logs, for: self, completion: nil)
+                logStore.remove(chunk.logs, for: self, completion: nil)
                 
-                NotificationCenter.default.post(name: Constants.BufferedOutputDidSuccessWriteChunkNotification, object: self)
+                NotificationCenter.default.post(name: BufferedOutput.DidSuccessWriteChunkNotification, object: self)
                 
                 return
             }
@@ -168,22 +156,19 @@ open class BufferedOutput: Output {
             chunk.retryCount += 1
             
             if chunk.retryCount <= self.maxRetryCount {
-                let delay = 2.0 * pow(2, chunk.retryCount - 1) as? NSDecimalNumber
-                let deadline = DispatchTime.now() + (Double(Int(delay!)) * Double(NSEC_PER_SEC))
+                let delay = NSDecimalNumber(decimal: 2.0 * pow(2, chunk.retryCount - 1))
                 
-                DispatchQueue.main.asyncAfter(deadline: deadline,
-                                              execute: {
-                                                NotificationCenter.default.post(name: Constants.BufferedOutputDidRetryWriteChunkNotification, object: self)
-                                                
-                                                self.callWrite(chunk)
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay.doubleValue, execute: {
+                    NotificationCenter.default.post(name: BufferedOutput.DidRetryWriteChunkNotification, object: self)
+                    
+                    self.callWrite(chunk)
                 })
-                
             }
             
         }
     }
     
-    func write(_ chunk: BufferedOutputChunk, completion: (_: Bool) -> Void) {
+    open func write(_ chunk: BufferedOutputChunk, completion: (_: Bool) -> Void) {
         completion(true)
     }
 }

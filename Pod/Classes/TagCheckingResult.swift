@@ -9,8 +9,8 @@
 import Foundation
 
 public class TagCheckingResult {
-    private(set) var isMatched: Bool = false
-    private(set) var capturedString: String?
+    private(set) public var isMatched: Bool = false
+    private(set) public var capturedString: String?
     
     static func failure() -> TagCheckingResult {
         let result = TagCheckingResult()

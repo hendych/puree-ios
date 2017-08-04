@@ -7,32 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5760F1CE1BB7CD26009A143D /* PURLoggerTagPatternMatchingTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C61BB7CD26009A143D /* PURLoggerTagPatternMatchingTest.swift */; };
-		5760F1CF1BB7CD26009A143D /* PURLogStoreTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C71BB7CD26009A143D /* PURLogStoreTest.swift */; };
-		5760F1D01BB7CD26009A143D /* PURTestAppendParamFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C81BB7CD26009A143D /* PURTestAppendParamFilter.swift */; };
-		5760F1D11BB7CD26009A143D /* PURTestBufferedOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C91BB7CD26009A143D /* PURTestBufferedOutput.swift */; };
-		5760F1D21BB7CD26009A143D /* PURTestChangeTagFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CA1BB7CD26009A143D /* PURTestChangeTagFilter.swift */; };
-		5760F1D31BB7CD26009A143D /* PURTestFailureOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CB1BB7CD26009A143D /* PURTestFailureOutput.swift */; };
-		5760F1D41BB7CD26009A143D /* PURTestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CC1BB7CD26009A143D /* PURTestOutput.swift */; };
+		5760F1CE1BB7CD26009A143D /* LoggerTagPatternMatchingTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C61BB7CD26009A143D /* LoggerTagPatternMatchingTest.swift */; };
+		5760F1CF1BB7CD26009A143D /* LogStoreTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C71BB7CD26009A143D /* LogStoreTest.swift */; };
+		5760F1D01BB7CD26009A143D /* TestAppendParamFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C81BB7CD26009A143D /* TestAppendParamFilter.swift */; };
+		5760F1D11BB7CD26009A143D /* TestBufferedOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1C91BB7CD26009A143D /* TestBufferedOutput.swift */; };
+		5760F1D21BB7CD26009A143D /* TestChangeTagFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CA1BB7CD26009A143D /* TestChangeTagFilter.swift */; };
+		5760F1D31BB7CD26009A143D /* TestFailureOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CB1BB7CD26009A143D /* TestFailureOutput.swift */; };
+		5760F1D41BB7CD26009A143D /* TestOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CC1BB7CD26009A143D /* TestOutput.swift */; };
 		5760F1D51BB7CD26009A143D /* TestLogStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5760F1CD1BB7CD26009A143D /* TestLogStorage.swift */; };
-		57ABD6DC1D979CE300B3B52D /* PURLoggerStandardPluginTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57ABD6DB1D979CE300B3B52D /* PURLoggerStandardPluginTest.swift */; };
-		9F6C6315B68326F76296B9BF /* libPods-PureeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F114EB7406FEADE718D7A6E5 /* libPods-PureeTests.a */; };
+		57ABD6DC1D979CE300B3B52D /* LoggerStandardPluginTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57ABD6DB1D979CE300B3B52D /* LoggerStandardPluginTest.swift */; };
+		C5AB5E369DD7B42632FCAE2B /* Pods_PureeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16301EBDE6E7C2ACE2829C62 /* Pods_PureeTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		16301EBDE6E7C2ACE2829C62 /* Pods_PureeTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PureeTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02199567B505DD66CAAACC /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		5760F1B91BB7CBFC009A143D /* PureeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PureeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5760F1BD1BB7CBFD009A143D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5760F1C11BB7CC7C009A143D /* PureeTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PureeTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		5760F1C61BB7CD26009A143D /* PURLoggerTagPatternMatchingTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURLoggerTagPatternMatchingTest.swift; sourceTree = "<group>"; };
-		5760F1C71BB7CD26009A143D /* PURLogStoreTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURLogStoreTest.swift; sourceTree = "<group>"; };
-		5760F1C81BB7CD26009A143D /* PURTestAppendParamFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURTestAppendParamFilter.swift; sourceTree = "<group>"; };
-		5760F1C91BB7CD26009A143D /* PURTestBufferedOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURTestBufferedOutput.swift; sourceTree = "<group>"; };
-		5760F1CA1BB7CD26009A143D /* PURTestChangeTagFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURTestChangeTagFilter.swift; sourceTree = "<group>"; };
-		5760F1CB1BB7CD26009A143D /* PURTestFailureOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURTestFailureOutput.swift; sourceTree = "<group>"; };
-		5760F1CC1BB7CD26009A143D /* PURTestOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURTestOutput.swift; sourceTree = "<group>"; };
+		5760F1C61BB7CD26009A143D /* LoggerTagPatternMatchingTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggerTagPatternMatchingTest.swift; sourceTree = "<group>"; };
+		5760F1C71BB7CD26009A143D /* LogStoreTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogStoreTest.swift; sourceTree = "<group>"; };
+		5760F1C81BB7CD26009A143D /* TestAppendParamFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAppendParamFilter.swift; sourceTree = "<group>"; };
+		5760F1C91BB7CD26009A143D /* TestBufferedOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestBufferedOutput.swift; sourceTree = "<group>"; };
+		5760F1CA1BB7CD26009A143D /* TestChangeTagFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestChangeTagFilter.swift; sourceTree = "<group>"; };
+		5760F1CB1BB7CD26009A143D /* TestFailureOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestFailureOutput.swift; sourceTree = "<group>"; };
+		5760F1CC1BB7CD26009A143D /* TestOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestOutput.swift; sourceTree = "<group>"; };
 		5760F1CD1BB7CD26009A143D /* TestLogStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestLogStorage.swift; sourceTree = "<group>"; };
-		57ABD6DB1D979CE300B3B52D /* PURLoggerStandardPluginTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PURLoggerStandardPluginTest.swift; sourceTree = "<group>"; };
+		57ABD6DB1D979CE300B3B52D /* LoggerStandardPluginTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggerStandardPluginTest.swift; sourceTree = "<group>"; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -40,7 +41,6 @@
 		6412CE7C1B65D0BBA34A4332 /* KurioPuree.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = KurioPuree.podspec; path = ../KurioPuree.podspec; sourceTree = "<group>"; };
 		A74A5DDA68461D97C2E89F24 /* Pods-PureeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PureeTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PureeTests/Pods-PureeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D7F43655475AA82E9B4A327D /* Pods-PureeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PureeTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PureeTests/Pods-PureeTests.release.xcconfig"; sourceTree = "<group>"; };
-		F114EB7406FEADE718D7A6E5 /* libPods-PureeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PureeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F6C6315B68326F76296B9BF /* libPods-PureeTests.a in Frameworks */,
+				C5AB5E369DD7B42632FCAE2B /* Pods_PureeTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,9 +67,9 @@
 		5760F1BA1BB7CBFD009A143D /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				5760F1C71BB7CD26009A143D /* PURLogStoreTest.swift */,
-				5760F1C61BB7CD26009A143D /* PURLoggerTagPatternMatchingTest.swift */,
-				57ABD6DB1D979CE300B3B52D /* PURLoggerStandardPluginTest.swift */,
+				5760F1C71BB7CD26009A143D /* LogStoreTest.swift */,
+				5760F1C61BB7CD26009A143D /* LoggerTagPatternMatchingTest.swift */,
+				57ABD6DB1D979CE300B3B52D /* LoggerStandardPluginTest.swift */,
 				5760F1CD1BB7CD26009A143D /* TestLogStorage.swift */,
 				5760F1C51BB7CCAD009A143D /* TestPlugins */,
 				5760F1BD1BB7CBFD009A143D /* Info.plist */,
@@ -81,11 +81,11 @@
 		5760F1C51BB7CCAD009A143D /* TestPlugins */ = {
 			isa = PBXGroup;
 			children = (
-				5760F1CA1BB7CD26009A143D /* PURTestChangeTagFilter.swift */,
-				5760F1C81BB7CD26009A143D /* PURTestAppendParamFilter.swift */,
-				5760F1CC1BB7CD26009A143D /* PURTestOutput.swift */,
-				5760F1C91BB7CD26009A143D /* PURTestBufferedOutput.swift */,
-				5760F1CB1BB7CD26009A143D /* PURTestFailureOutput.swift */,
+				5760F1CA1BB7CD26009A143D /* TestChangeTagFilter.swift */,
+				5760F1C81BB7CD26009A143D /* TestAppendParamFilter.swift */,
+				5760F1CC1BB7CD26009A143D /* TestOutput.swift */,
+				5760F1C91BB7CD26009A143D /* TestBufferedOutput.swift */,
+				5760F1CB1BB7CD26009A143D /* TestFailureOutput.swift */,
 			);
 			name = TestPlugins;
 			sourceTree = "<group>";
@@ -116,7 +116,7 @@
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				F114EB7406FEADE718D7A6E5 /* libPods-PureeTests.a */,
+				16301EBDE6E7C2ACE2829C62 /* Pods_PureeTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -227,7 +227,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		E5B5611B77683DE75002CEFD /* [CP] Embed Pods Frameworks */ = {
@@ -252,15 +252,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5760F1D21BB7CD26009A143D /* PURTestChangeTagFilter.swift in Sources */,
-				5760F1D01BB7CD26009A143D /* PURTestAppendParamFilter.swift in Sources */,
-				5760F1D11BB7CD26009A143D /* PURTestBufferedOutput.swift in Sources */,
-				5760F1D31BB7CD26009A143D /* PURTestFailureOutput.swift in Sources */,
-				5760F1CE1BB7CD26009A143D /* PURLoggerTagPatternMatchingTest.swift in Sources */,
-				57ABD6DC1D979CE300B3B52D /* PURLoggerStandardPluginTest.swift in Sources */,
-				5760F1D41BB7CD26009A143D /* PURTestOutput.swift in Sources */,
+				5760F1D21BB7CD26009A143D /* TestChangeTagFilter.swift in Sources */,
+				5760F1D01BB7CD26009A143D /* TestAppendParamFilter.swift in Sources */,
+				5760F1D11BB7CD26009A143D /* TestBufferedOutput.swift in Sources */,
+				5760F1D31BB7CD26009A143D /* TestFailureOutput.swift in Sources */,
+				5760F1CE1BB7CD26009A143D /* LoggerTagPatternMatchingTest.swift in Sources */,
+				57ABD6DC1D979CE300B3B52D /* LoggerStandardPluginTest.swift in Sources */,
+				5760F1D41BB7CD26009A143D /* TestOutput.swift in Sources */,
 				5760F1D51BB7CD26009A143D /* TestLogStorage.swift in Sources */,
-				5760F1CF1BB7CD26009A143D /* PURLogStoreTest.swift in Sources */,
+				5760F1CF1BB7CD26009A143D /* LogStoreTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,6 +350,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -388,6 +389,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
