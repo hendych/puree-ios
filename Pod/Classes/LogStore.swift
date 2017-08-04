@@ -10,43 +10,45 @@
 import Foundation
 import YapDatabase
 
-private let LogDatabaseDirectory: String = "com.cookpad.eeData.default"
-private let LogDatabaseFileName: String = "logs.db"
-private let LogDataCollectionNamePrefix: String = "log_"
-private var __databases = [String: YapDatabase]()
 
-typealias LogStoreRetrieveCompletionBlock = (_ logs: [Log]) -> Void
+public typealias LogStoreRetrieveCompletionBlock = (_ logs: [Log]) -> Void
 
 private func LogStoreCollectionNameForPattern(pattern: String) -> String {
-    return LogDataCollectionNamePrefix + (pattern)
+    return LogStore.LogDataCollectionNamePrefix + (pattern)
 }
 
 private func LogKey(output: Output, log: Log) -> String {
-    return String(describing: output.self) + ("_") + (log.identifier)
+    return NSStringFromClass(type(of: output)) + ("_") + (log.identifier)
 }
 
 public class LogStore {
+    fileprivate static let LogDatabaseDirectory = "com.cookpad.eeData.default"
+    fileprivate static let LogDatabaseFileName = "logs.db"
+    fileprivate static let LogDataCollectionNamePrefix = "log_"
+    fileprivate static var __databases = [String: YapDatabase]()
     
-    var databasePath: URL?
+    var databasePath: URL
     var databaseConnection: YapDatabaseConnection?
+    var databaseReadWriteCompletionQueue: DispatchQueue?
     
-    public class func initialize() {
-        __databases = [String: YapDatabase]()
+    public static func defaultLogStore() -> LogStore {
+        return LogStore(databasePath: LogStore.defaultDatabasePath())
     }
     
-    init(databasePath: URL?) {
-        if databasePath == nil {
-            self.databasePath = self.defaultDatabasePath()
-        }
-        
+    public init(databasePath: URL) {
         self.databasePath = databasePath
+        self.databaseReadWriteCompletionQueue = DispatchQueue(label: "PureeLogStoreReadWriteCompletion")
     }
     
-    func prepare() -> Bool {
+    deinit {
+        self.databaseReadWriteCompletionQueue = nil
+    }
+    
+    public func prepare() -> Bool {
         let fileManager = FileManager.default
-        let databaseDirectory: String = (databasePath?.deletingLastPathComponent().lastPathComponent)!
+        let databaseDirectory = databasePath.deletingLastPathComponent().absoluteString
         
-        if !fileManager.fileExists(atPath: databaseDirectory) {
+        if fileManager.fileExists(atPath: databaseDirectory) == false {
             let error: Error? = nil
             
             try? fileManager.createDirectory(atPath: databaseDirectory, withIntermediateDirectories: true, attributes: nil)
@@ -56,11 +58,11 @@ public class LogStore {
             }
         }
         
-        var database: YapDatabase? = __databases[(databasePath?.absoluteString)!]
+        var database: YapDatabase? = LogStore.__databases[databasePath.absoluteString]
         
         if database == nil {
-            database = YapDatabase(path: (databasePath?.absoluteString)!)
-            __databases[(databasePath?.absoluteString)!] = database
+            database = YapDatabase(path: databasePath.absoluteString)
+            LogStore.__databases[databasePath.absoluteString] = database
         }
         
         if databaseConnection?.database != database {
@@ -70,63 +72,68 @@ public class LogStore {
         return true
     }
     
-    private func defaultDatabasePath() -> URL {
-        let libraryCachePaths: [Any] = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
-        let libraryCacheDirectoryPath: String? = libraryCachePaths.first as! String?
-        let filePath: String = URL(fileURLWithPath: LogDatabaseDirectory).appendingPathComponent(LogDatabaseFileName).absoluteString
-        let databasePath = URL(fileURLWithPath: libraryCacheDirectoryPath!).appendingPathComponent(filePath)
+    public static func defaultDatabasePath() -> URL {
+        let libraryCachePaths = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
+                                                                    .userDomainMask,
+                                                                    true)
+        let libraryCacheDirectoryPath = libraryCachePaths.first! as! String
+        let filePath = "\(LogDatabaseDirectory)/\(LogDatabaseFileName)"
+        let databasePath = URL(fileURLWithPath: "\(libraryCacheDirectoryPath)/\(filePath)")
         
         return databasePath
     }
     
-    func retrieveLogs(for output: Output, completion: @escaping LogStoreRetrieveCompletionBlock) {
-        assert((databaseConnection == nil), "Database connection is not available")
+    public func retrieveLogs(for output: Output, completion: @escaping LogStoreRetrieveCompletionBlock) {
+        assert(self.databaseConnection != nil, "Database connection is not available")
         
         var logs: [Log] = [Log]()
         
-        databaseConnection?.asyncRead({(_ transaction: YapDatabaseReadTransaction) -> Void in
+        databaseConnection?.asyncRead({ (transaction) in
+            let keyPrefix = NSStringFromClass(type(of: output)).appending("_")
             
-            let keyPrefix: String = String(describing: output.self) + ("_")
-            
-            transaction.enumerateRows(inCollection: LogStoreCollectionNameForPattern(pattern: output.tagPattern), using: { (key, log, metadata, stop) in
-                logs.append(log as! Log)
+            transaction.enumerateRows(inCollection: LogStoreCollectionNameForPattern(pattern: output.tagPattern),
+                                      using: { (key, log, metadata, stop) in
+                                        logs.append(log as! Log)
             }, withFilter: { (key) -> Bool in
                 return key.hasPrefix(keyPrefix)
             })
             
-        }, completionBlock: {() -> Void in
+        }, completionQueue: self.databaseReadWriteCompletionQueue, completionBlock: { 
             completion(logs)
         })
     }
     
-    func add(_ log: Log, for output: Output, completion: (() -> Void)?) {
-        assert((databaseConnection == nil), "Database connection is not available")
-        addLogs([log], for: output, completion: completion)
+    public func add(_ log: Log, for output: Output, completion: (() -> Void)?) {
+        assert((databaseConnection != nil), "Database connection is not available")
+        add([log], for: output, completion: completion)
     }
     
-    func addLogs(_ logs: [Log], for output: Output, completion: (() -> Void)?) {
-        assert((databaseConnection == nil), "Database connection is not available")
-        databaseConnection?.asyncReadWrite({(_ transaction: YapDatabaseReadWriteTransaction) -> Void in
-            let collectionName: String = LogStoreCollectionNameForPattern(pattern: output.tagPattern)
-            for log: Log in logs {
+    public func add(_ logs: [Log], for output: Output, completion: (() -> Void)?) {
+        assert((databaseConnection != nil), "Database connection is not available")
+        
+        databaseConnection?.asyncReadWrite({ (transaction) in
+            let collectionName = LogStoreCollectionNameForPattern(pattern: output.tagPattern)
+            for log in logs {
                 transaction.setObject(log, forKey: LogKey(output: output, log: log), inCollection: collectionName)
             }
-        }, completionBlock: completion)
+        }, completionQueue: self.databaseReadWriteCompletionQueue, completionBlock: completion)
     }
     
-    func removeLogs(_ logs: [Log], for output: Output, completion: (() -> Void)?) {
-        assert((databaseConnection == nil), "Database connection is not available")
-        databaseConnection?.asyncReadWrite({(_ transaction: YapDatabaseReadWriteTransaction) -> Void in
-            let collectionName: String = LogStoreCollectionNameForPattern(pattern: output.tagPattern)
-            for log: Log in logs {
+    public func remove(_ logs: [Log], for output: Output, completion: (() -> Void)?) {
+        assert((databaseConnection != nil), "Database connection is not available")
+        
+        databaseConnection?.asyncReadWrite({ (transaction) in
+            let collectionName = LogStoreCollectionNameForPattern(pattern: output.tagPattern)
+            for log in logs {
                 transaction.removeObject(forKey: LogKey(output: output, log: log), inCollection: collectionName)
             }
-        }, completionBlock: completion)
+        }, completionQueue: self.databaseReadWriteCompletionQueue, completionBlock: completion)
     }
     
-    func clearAll() {
-        assert((databaseConnection == nil), "Database connection is not available")
-        databaseConnection?.readWrite({(_ transaction: YapDatabaseReadWriteTransaction) -> Void in
+    public func clearAll() {
+        assert((databaseConnection != nil), "Database connection is not available")
+        
+        databaseConnection?.readWrite({ (transaction) in
             transaction.removeAllObjectsInAllCollections()
         })
     }

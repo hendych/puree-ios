@@ -10,46 +10,52 @@ import Foundation
 
 public class Logger {
     
-    var configuration: LoggerConfiguration?
-    var defaultFilter: Filter?
+    let configuration: LoggerConfiguration
+    private var _defaultFilter: Filter!
+    var defaultFilter: Filter {
+        return _defaultFilter
+    }
     var filters = [String: Filter]()
     var filterReactionTagPatterns = [String: String]()
     var outputs = [String: Output]()
     var outputReactionTagPatterns = [String: String]()
     
     public class func matchesTag(_ tag: String, pattern: String) -> TagCheckingResult {
-        
-        if (tag == pattern) {
+        if tag == pattern {
             return TagCheckingResult.success()
         }
         
         let elementsSeparator: String = "."
         let wildcard: String = "*"
         let allWildcard: String = "**"
-        let patternElements: [String] = pattern.components(separatedBy: elementsSeparator)
-        let tagElements: [String] = tag.components(separatedBy: elementsSeparator)
+        let patternElements = pattern.components(separatedBy: elementsSeparator)
+        let tagElements = tag.components(separatedBy: elementsSeparator)
         let lastPatternElement = patternElements.last
         
-        if (lastPatternElement == allWildcard) {
-            var matched: Bool = true
+        if lastPatternElement == allWildcard {
+            var matched = true
             
             for (idx, val) in patternElements.enumerated() {
+                if idx == patternElements.count - 1 {
+                    break
+                }
+                
                 
                 let tagElement = tagElements[idx]
-                
-                if !(tagElement == val) {
+                if tagElement != val {
                     matched = false
                     break
                 }
             }
             
             if matched {
-                let location: Int = patternElements.count - 1
-                let capturedLength: Int = tagElements.count - location
-                var capturedString: String = ""
+                let location = patternElements.count - 1
+                let capturedLength = tagElements.count - location
+                var capturedString = ""
                 
                 if capturedLength > 0 {
-                    capturedString = tagElements[Range(uncheckedBounds: (location, capturedLength))].joined(separator: elementsSeparator)
+                    capturedString = tagElements[location...location+capturedLength-1]
+                        .joined(separator: elementsSeparator)
                 }
                 
                 return TagCheckingResult.successResult(withCapturedString: capturedString)
@@ -57,11 +63,15 @@ public class Logger {
             
         } else if (lastPatternElement == wildcard) {
             if tagElements.count == patternElements.count {
-                var matched: Bool = true
+                var matched = true
                 
                 for (idx, val) in patternElements.enumerated() {
+                    if idx == patternElements.count - 1 {
+                        break
+                    }
+                    
                     let tagElement: String = tagElements[idx]
-                    if !(tagElement == val) {
+                    if tagElement != val {
                         matched = false
                         break
                     }
@@ -86,17 +96,16 @@ public class Logger {
         shutdown()
     }
     
-    func logStore() -> LogStore? {
-        return configuration?.logStore
+    public func logStore() -> LogStore {
+        return configuration.logStore
     }
     
-    func currentDate() -> Date? {
+    public func currentDate() -> Date {
         return Date()
     }
     
     public func configure() {
-        let logStore: LogStore? = configuration?.logStore
-        let _ = logStore?.prepare()
+        let _ = configuration.logStore.prepare()
         
         configureFilterPlugins()
         configureOutputPlugins()
@@ -107,47 +116,49 @@ public class Logger {
     }
     
     func configureFilterPlugins() {
-        defaultFilter = Filter(logger: self, tagPattern: nil)
+        _defaultFilter = Filter(logger: self, tagPattern: nil)
         
         var filters = [String: Filter]()
         var filterReactionTagPatterns = [String: String]()
         
-        if let configuration = configuration {
-            for setting in configuration.filterSettings {
-                
-                let filter = Filter(logger: self, tagPattern: setting.tagPattern)
-                
-                if let pluginSettings = setting.settings {
-                    filter.configure(pluginSettings)
-                    filters[filter.identifier] = filter
-                    filterReactionTagPatterns[filter.identifier] = setting.tagPattern
-                }
+        for setting in configuration.filterSettings {
+            let filter = setting.filterClass.init(logger: self, tagPattern: setting.tagPattern)
+            if filter is Filter == false {
+                continue
             }
             
-            self.filters = filters
-            self.filterReactionTagPatterns = filterReactionTagPatterns
+            if let pluginSettings = setting.settings {
+                filter.configure(pluginSettings)
+            }
+            
+            filters[filter.identifier] = filter
+            filterReactionTagPatterns[filter.identifier] = setting.tagPattern
         }
+        
+        self.filters = filters
+        self.filterReactionTagPatterns = filterReactionTagPatterns
     }
     
     func configureOutputPlugins() {
         var outputs = [String: Output]()
         var outputReactionTagPatterns = [String: String]()
         
-        if let configuration = configuration {
-            for setting in configuration.outputSettings {
-                
-                let output = Output(logger: self, tagPattern: setting.tagPattern)
-                
-                if let pluginSettings = setting.settings {
-                    output.configure(pluginSettings)
-                    outputs[output.identifier] = output
-                    outputReactionTagPatterns[output.identifier] = setting.tagPattern
-                }
+        for setting in configuration.outputSettings {
+            let output = setting.outputClass.init(logger: self, tagPattern: setting.tagPattern)
+            if output is Output == false {
+                continue
             }
             
-            self.outputs = outputs
-            self.outputReactionTagPatterns = outputReactionTagPatterns
+            if let pluginSettings = setting.settings {
+                output.configure(pluginSettings)
+            }
+            
+            outputs[output.identifier] = output
+            outputReactionTagPatterns[output.identifier] = setting.tagPattern
         }
+        
+        self.outputs = outputs
+        self.outputReactionTagPatterns = outputReactionTagPatterns
     }
     
     func startPlugins() {
@@ -174,18 +185,22 @@ public class Logger {
         for (key, _) in filterReactionTagPatterns {
             
             let pattern = filterReactionTagPatterns[key]
-            let result: TagCheckingResult? = Logger.matchesTag(tag, pattern: pattern!)
+            let result = Logger.matchesTag(tag, pattern: pattern!)
             
-            let filter: Filter? = filters[key]
-            if let filteredLogs = filter?.logs(withObject: object, tag: tag, captured: (result?.capturedString)!) {
-                for log in filteredLogs {
-                    logs.append(log)
-                }
+            if result.isMatched == false {
+                continue
+            }
+            
+            let filter = filters[key]
+            if let filteredLogs = filter?.logs(withObject: object,
+                                               tag: tag,
+                                               captured: result.capturedString) {
+                logs.append(contentsOf: filteredLogs)
             }
         }
         
         if logs.count == 0 {
-            return defaultFilter!.logs(withObject: object, tag: tag, captured: nil)
+            return defaultFilter.logs(withObject: object, tag: tag, captured: nil)
         }
         
         return logs
@@ -203,7 +218,7 @@ public class Logger {
         }
     }
     
-    func shutdown() {
+    public func shutdown() {
         
         filters.removeAll()
         filterReactionTagPatterns.removeAll()

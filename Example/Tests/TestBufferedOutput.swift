@@ -1,17 +1,19 @@
 import Foundation
+import KurioPuree
 
-class PURTestBufferedOutput: PURBufferedOutput {
+class TestBufferedOutput: BufferedOutput {
     var logStorage: TestLogStorage!
 
-    override func configure(settings: [String: Any]) {
-        super.configure(settings: settings)
+    override func configure(_ settings: [String: Any]) {
+        super.configure(settings)
 
         if let logStorage = settings["logStorage"] as? TestLogStorage {
             self.logStorage = logStorage
         }
     }
+    
 
-    override func write(chunk: PURBufferedOutputChunk, completion: @escaping (Bool) -> Void) {
+    override func write(_ chunk: BufferedOutputChunk, completion: (_: Bool) -> Void) {
         let logString = chunk.logs.map { log in
             let userInfo = log.userInfo as! [String: String]
             let record = userInfo.keys.sorted().map { "\($0):\(log.userInfo[$0]!)" }.joined(separator: ",")

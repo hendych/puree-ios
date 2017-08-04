@@ -1,13 +1,14 @@
 import XCTest
+import KurioPuree
 
-class PURLoggerStandardPluginTest: XCTestCase {
-    class TestLoggerConfiguration: PURLoggerConfiguration {
+class LoggerStandardPluginTest: XCTestCase {
+    class TestLoggerConfiguration: LoggerConfiguration {
         let logStorage = TestLogStorage()
         let logStoreOperationDispatchQueue = DispatchQueue(label: "Puree logger test")
     }
 
     var loggerConfiguration: TestLoggerConfiguration!
-    var logger: PURLogger!
+    var logger: Logger!
 
     var testLogStorage: TestLogStorage {
         return loggerConfiguration.logStorage
@@ -16,25 +17,25 @@ class PURLoggerStandardPluginTest: XCTestCase {
     override func setUp() {
         let configuration = TestLoggerConfiguration()
         let logStoreDBPath = NSTemporaryDirectory() + "/PureeLoggerTest-\(UUID().uuidString).db"
-        let logStore = PURLogStore(databasePath: logStoreDBPath)
+        let logStore = LogStore(databasePath: URL(fileURLWithPath: logStoreDBPath))
         let logStorage = configuration.logStorage
 
         configuration.logStore = logStore
         configuration.filterSettings = [
-            PURFilterSetting(filter: PURTestChangeTagFilter.self, tagPattern: "filter.test", settings: ["tagSuffix": "XXX"]),
-            PURFilterSetting(filter: PURTestAppendParamFilter.self, tagPattern: "filter.append.**"),
+            FilterSetting(filter: TestChangeTagFilter.self, tagPattern: "filter.test", settings: ["tagSuffix": "XXX"]),
+            FilterSetting(filter: TestAppendParamFilter.self, tagPattern: "filter.append.**"),
         ]
         configuration.outputSettings = [
-            PUROutputSetting(output: PURTestOutput.self, tagPattern: "filter.testXXX", settings: ["logStorage": logStorage]),
-            PUROutputSetting(output: PURTestOutput.self, tagPattern: "filter.append.**", settings: ["logStorage": logStorage]),
-            PUROutputSetting(output: PURTestOutput.self, tagPattern: "test.*", settings: ["logStorage": logStorage]),
-            PUROutputSetting(output: PURTestOutput.self, tagPattern: "unbuffered", settings: ["logStorage": logStorage]),
-            PUROutputSetting(output: PURTestBufferedOutput.self, tagPattern: "buffered.*", settings: ["logStorage": logStorage, PURBufferedOutputSettingsFlushIntervalKey: 2]),
-            PUROutputSetting(output: PURTestFailureOutput.self, tagPattern: "failure", settings: ["logStorage": logStorage]),
+            OutputSetting(output: TestOutput.self, tagPattern: "filter.testXXX", settings: ["logStorage": logStorage]),
+            OutputSetting(output: TestOutput.self, tagPattern: "filter.append.**", settings: ["logStorage": logStorage]),
+            OutputSetting(output: TestOutput.self, tagPattern: "test.*", settings: ["logStorage": logStorage]),
+            OutputSetting(output: TestOutput.self, tagPattern: "unbuffered", settings: ["logStorage": logStorage]),
+            OutputSetting(output: TestBufferedOutput.self, tagPattern: "buffered.*", settings: ["logStorage": logStorage, BufferedOutput.SettingsFlushIntervalKey: 2]),
+            OutputSetting(output: TestFailureOutput.self, tagPattern: "failure", settings: ["logStorage": logStorage]),
         ]
 
         loggerConfiguration = configuration
-        logger = PURLogger(configuration: configuration)
+        logger = Logger(configuration: configuration)
     }
 
     override func tearDown() {
@@ -75,12 +76,12 @@ class PURLoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_writeLog() {
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidStart.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidSuccessWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidSuccessWriteChunkNotification.rawValue, object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "buffered.a")
         logger.post(["aaa": "2"], tag: "buffered.a")
@@ -108,12 +109,12 @@ class PURLoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_resumeStoredLogs() {
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidStart.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidSuccessWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidSuccessWriteChunkNotification.rawValue, object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "buffered.c")
         logger.post(["aaa": "2"], tag: "buffered.c")
@@ -122,10 +123,10 @@ class PURLoggerStandardPluginTest: XCTestCase {
         XCTAssertEqual(String(describing: testLogStorage), "")
 
         logger.shutdown()
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidStart.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
 
         // renewal logger!
-        logger = PURLogger(configuration: loggerConfiguration) // <- flush!
+        logger = Logger(configuration: loggerConfiguration) // <- flush!
 
         waitForExpectations(timeout: 1.0, handler: nil)
 
@@ -146,12 +147,12 @@ class PURLoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_periodicalFlushing() {
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidStart.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidSuccessWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidSuccessWriteChunkNotification.rawValue, object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "buffered.e")
         logger.post(["aaa": "2"], tag: "buffered.e")
@@ -169,12 +170,12 @@ class PURLoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_retry() {
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidStart.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidTryWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "failure")
         logger.post(["aaa": "2"], tag: "failure")
@@ -185,17 +186,17 @@ class PURLoggerStandardPluginTest: XCTestCase {
         waitForExpectations(timeout: 1.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error]")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidTryWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
         // scheduled after 2sec
         waitForExpectations(timeout: 3.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error][error]")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidTryWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
         // scheduled after 4sec
         waitForExpectations(timeout: 5.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error][error][error]")
 
-        expectation(forNotification: Notification.Name.PURBufferedOutputDidTryWriteChunk.rawValue, object: nil, handler: nil)
+        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
         // scheduled after 8sec
         waitForExpectations(timeout: 9.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error][error][error][error]")
