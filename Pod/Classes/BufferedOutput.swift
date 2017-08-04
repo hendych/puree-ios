@@ -109,7 +109,6 @@ open class BufferedOutput: Output {
     
     func retrieveLogs(_ completion: @escaping LogStoreRetrieveCompletionBlock) {
         buffer.removeAll()
-        logStore
         logStore.retrieveLogs(for: self, completion: completion)
     }
     

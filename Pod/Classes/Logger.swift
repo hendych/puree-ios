@@ -123,9 +123,6 @@ public class Logger {
         
         for setting in configuration.filterSettings {
             let filter = setting.filterClass.init(logger: self, tagPattern: setting.tagPattern)
-            if filter is Filter == false {
-                continue
-            }
             
             if let pluginSettings = setting.settings {
                 filter.configure(pluginSettings)
@@ -145,9 +142,6 @@ public class Logger {
         
         for setting in configuration.outputSettings {
             let output = setting.outputClass.init(logger: self, tagPattern: setting.tagPattern)
-            if output is Output == false {
-                continue
-            }
             
             if let pluginSettings = setting.settings {
                 output.configure(pluginSettings)

@@ -76,7 +76,7 @@ public class LogStore {
         let libraryCachePaths = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
                                                                     .userDomainMask,
                                                                     true)
-        let libraryCacheDirectoryPath = libraryCachePaths.first! as! String
+        let libraryCacheDirectoryPath = libraryCachePaths.first!
         let filePath = "\(LogDatabaseDirectory)/\(LogDatabaseFileName)"
         let databasePath = URL(fileURLWithPath: "\(libraryCacheDirectoryPath)/\(filePath)")
         
