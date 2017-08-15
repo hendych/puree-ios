@@ -84,9 +84,9 @@ public class LogStore {
                                                                     true)
         let libraryCacheDirectoryPath = libraryCachePaths.first!
         let filePath = "\(LogDatabaseDirectory)/\(LogDatabaseFileName)"
-        let databasePath = URL(fileURLWithPath: "\(libraryCacheDirectoryPath)/\(filePath)")
+        let databasePath = URL(string: "\(libraryCacheDirectoryPath)/\(filePath)")
         
-        return databasePath
+        return databasePath!
     }
     
     public func retrieveLogs(for output: Output, completion: @escaping LogStoreRetrieveCompletionBlock) {
