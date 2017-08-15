@@ -145,7 +145,7 @@ open class BufferedOutput: Output {
             NotificationCenter.default.post(name: BufferedOutput.DidTryWriteChunkNotification, object: self)
             
             if success {
-                logStore.remove(chunk.logs, for: self, completion: nil)
+                self.logStore.remove(chunk.logs, for: self, completion: nil)
                 
                 NotificationCenter.default.post(name: BufferedOutput.DidSuccessWriteChunkNotification, object: self)
                 
@@ -167,7 +167,7 @@ open class BufferedOutput: Output {
         }
     }
     
-    open func write(_ chunk: BufferedOutputChunk, completion: (_: Bool) -> Void) {
+    open func write(_ chunk: BufferedOutputChunk, completion: @escaping (_: Bool) -> Void) {
         completion(true)
     }
 }

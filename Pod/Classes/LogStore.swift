@@ -22,7 +22,7 @@ private func LogKey(output: Output, log: Log) -> String {
 }
 
 public class LogStore {
-    fileprivate static let LogDatabaseDirectory = "com.cookpad.eeData.default"
+    fileprivate static let LogDatabaseDirectory = "com.cookpad.PureeData.default"
     fileprivate static let LogDatabaseFileName = "logs.db"
     fileprivate static let LogDataCollectionNamePrefix = "log_"
     fileprivate static var __databases = [String: YapDatabase]()
@@ -47,15 +47,21 @@ public class LogStore {
     public func prepare() -> Bool {
         let fileManager = FileManager.default
         let databaseDirectory = databasePath.deletingLastPathComponent().absoluteString
+        var isDirectory: ObjCBool = false
         
-        if fileManager.fileExists(atPath: databaseDirectory) == false {
-            let error: Error? = nil
-            
-            try? fileManager.createDirectory(atPath: databaseDirectory, withIntermediateDirectories: true, attributes: nil)
-            
-            if error != nil {
-                return false
+        if !fileManager.fileExists(atPath: databaseDirectory, isDirectory: &isDirectory) {
+            do {
+                try? fileManager.createDirectory(atPath: databaseDirectory,
+                                                 withIntermediateDirectories: true,
+                                                 attributes: nil)
+            } catch let error {
+                if error != nil {
+                    return false
+                }
             }
+            
+        } else if !isDirectory.boolValue {
+            return false
         }
         
         var database: YapDatabase? = LogStore.__databases[databasePath.absoluteString]

@@ -12,7 +12,7 @@ class TestFailureOutput: BufferedOutput {
         }
     }
 
-    override func write(_ chunk: BufferedOutputChunk, completion: (_: Bool) -> Void) {
+    override func write(_ chunk: BufferedOutputChunk, completion: @escaping (_: Bool) -> Void) {
         self.logStorage.add(log: "error")
         print("\(Date()): error!(retry debug)")
         completion(false)

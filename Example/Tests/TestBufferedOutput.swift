@@ -13,7 +13,7 @@ class TestBufferedOutput: BufferedOutput {
     }
     
 
-    override func write(_ chunk: BufferedOutputChunk, completion: (_: Bool) -> Void) {
+    override func write(_ chunk: BufferedOutputChunk, completion: @escaping (_: Bool) -> Void) {
         let logString = chunk.logs.map { log in
             let userInfo = log.userInfo as! [String: String]
             let record = userInfo.keys.sorted().map { "\($0):\(log.userInfo[$0]!)" }.joined(separator: ",")
