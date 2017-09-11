@@ -54,10 +54,6 @@ public class LogStore {
                 try? fileManager.createDirectory(atPath: databaseDirectory,
                                                  withIntermediateDirectories: true,
                                                  attributes: nil)
-            } catch let error {
-                if error != nil {
-                    return false
-                }
             }
             
         } else if !isDirectory.boolValue {
