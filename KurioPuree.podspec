@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "KurioPuree"
-  s.version          = "3.0.1"
-  s.summary          = "Build on top Swift 3.0, a log collector for iOS, modified for Kurio"
+  s.version          = "4.0.0"
+  s.summary          = "Build on top Swift 4.0, a log collector for iOS, modified for Kurio"
   s.homepage         = "https://github.com/hendych/puree-ios"
   s.license          = "MIT"
   s.author           = { "Tomohiro Moro" => "tomohiro-moro@cookpad.com", "Hendy Christianto" => "hendy@kurio.co.id", "Managam Silalahi" => "managam@kurio.co.id" }

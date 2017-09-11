@@ -7,7 +7,7 @@ PODS:
     - CocoaLumberjack/Core
   - CocoaLumberjack/Extensions (2.4.0):
     - CocoaLumberjack/Default
-  - KurioPuree (3.0.1):
+  - KurioPuree (4.0.0):
     - YapDatabase (~> 2.9.2)
   - YapDatabase (2.9.3):
     - YapDatabase/Standard (= 2.9.3)
@@ -68,7 +68,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   CocoaLumberjack: aa9dcab71bdf9eaf2a63bbd9ddc87863efe45457
-  KurioPuree: 9002075f42578907c4a44bd158026193e61e8158
+  KurioPuree: 521b2cc888e8098e9cc2adbf7c08edf7c7d8f5b5
   YapDatabase: cd911121580ff16675f65ad742a9eb0ab4d9e266
 
 PODFILE CHECKSUM: 32a8300ce4669c831e707b10a481d91db7267235
