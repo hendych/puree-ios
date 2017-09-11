@@ -76,12 +76,12 @@ class LoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_writeLog() {
-        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidStartNotification.rawValue), object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: BufferedOutput.DidSuccessWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidSuccessWriteChunkNotification.rawValue), object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "buffered.a")
         logger.post(["aaa": "2"], tag: "buffered.a")
@@ -109,12 +109,12 @@ class LoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_resumeStoredLogs() {
-        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidStartNotification.rawValue), object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: BufferedOutput.DidSuccessWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidSuccessWriteChunkNotification.rawValue), object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "buffered.c")
         logger.post(["aaa": "2"], tag: "buffered.c")
@@ -123,7 +123,7 @@ class LoggerStandardPluginTest: XCTestCase {
         XCTAssertEqual(String(describing: testLogStorage), "")
 
         logger.shutdown()
-        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidStartNotification.rawValue), object: nil, handler: nil)
 
         // renewal logger!
         logger = Logger(configuration: loggerConfiguration) // <- flush!
@@ -147,12 +147,12 @@ class LoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_periodicalFlushing() {
-        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidStartNotification.rawValue), object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: BufferedOutput.DidSuccessWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidSuccessWriteChunkNotification.rawValue), object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "buffered.e")
         logger.post(["aaa": "2"], tag: "buffered.e")
@@ -170,12 +170,12 @@ class LoggerStandardPluginTest: XCTestCase {
     }
 
     func testBufferedOutputPlugin_retry() {
-        expectation(forNotification: BufferedOutput.DidStartNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidStartNotification.rawValue), object: nil, handler: nil)
         waitForExpectations(timeout: 1.0, handler: nil)
 
         XCTAssertEqual(String(describing: testLogStorage), "")
 
-        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidTryWriteChunkNotification.rawValue), object: nil, handler: nil)
 
         logger.post(["aaa": "1"], tag: "failure")
         logger.post(["aaa": "2"], tag: "failure")
@@ -186,17 +186,17 @@ class LoggerStandardPluginTest: XCTestCase {
         waitForExpectations(timeout: 1.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error]")
 
-        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidTryWriteChunkNotification.rawValue), object: nil, handler: nil)
         // scheduled after 2sec
         waitForExpectations(timeout: 3.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error][error]")
 
-        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidTryWriteChunkNotification.rawValue), object: nil, handler: nil)
         // scheduled after 4sec
         waitForExpectations(timeout: 5.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error][error][error]")
 
-        expectation(forNotification: BufferedOutput.DidTryWriteChunkNotification.rawValue, object: nil, handler: nil)
+        expectation(forNotification: NSNotification.Name(rawValue: BufferedOutput.DidTryWriteChunkNotification.rawValue), object: nil, handler: nil)
         // scheduled after 8sec
         waitForExpectations(timeout: 9.0, handler: nil)
         XCTAssertEqual(String(describing: testLogStorage), "[error][error][error][error]")
