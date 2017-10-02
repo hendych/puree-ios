@@ -37,6 +37,14 @@ open class BufferedOutput: Output {
         timer?.invalidate()
     }
     
+    public required init(logger: Logger, tagPattern: String) {
+        super.init(logger: logger, tagPattern: tagPattern)
+        
+        self.buffer = [Log]()
+        self.flushInterval = TimeInterval()
+        self.recentFlushTime = CFAbsoluteTime()
+    }
+    
     func setUpTimer() {
         timer?.invalidate()
         timer = Timer(timeInterval: 1.0, target: self, selector: #selector(self.tick), userInfo: nil, repeats: true)
